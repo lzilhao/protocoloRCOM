@@ -1,0 +1,84 @@
+
+Skip to content
+This repository
+
+    Pull requests
+    Issues
+    Gist
+
+    @lzilhao
+
+1,822
+41,566
+
+    16,524
+
+github/gitignore
+Code
+Pull requests 161
+Projects 0
+Pulse
+Graphs
+gitignore/C.gitignore
+b7e6ce6 13 days ago
+@aarian93p aarian93p More kernel module compilation results
+@aarian93p
+@rye
+@eugpermar
+@mattjeffery
+@dybekm
+@dashed
+@starrify
+@arsenm
+@snisarg
+@adericbourg
+45 lines (37 sloc) 368 Bytes
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+    Contact GitHub API Training Shop Blog About 
+
+    © 2016 GitHub, Inc. Terms Privacy Security Status Help 
+
