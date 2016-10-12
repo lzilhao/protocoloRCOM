@@ -25,6 +25,7 @@ void conexao() // atende alarme
     conta++;
     teste = 1;
   }
+
 int llopen(char * * argv) {
   int fd, c = 1;
   struct termios oldtio, newtio;
@@ -81,7 +82,7 @@ int llopen(char * * argv) {
     buf[0] = 0x7E;
     buf[1] = 0x03;
     buf[2] = 0x03;
-    buf[3] = ((buf[1] ^ buf[2]) - 1);
+    buf[3] = (buf[1] ^ buf[2]);
     buf[4] = 0x7E;
     c = strlen(buf);
 
@@ -101,12 +102,15 @@ int llopen(char * * argv) {
     //printf("Enviei em 0: %#08x\nEnviei em 1: %#08x\nEnviei em 2: %#08x\nEnviei em 3: %#08x\nEnviei em 4: %#08x\n",buf[0],buf[1],buf[2],buf[3],buf[4]);
     alarm(3);
 
-    while (alm == 1) {
-      if (teste == 1) {
+    while (alm == 1) 
+		{
+      if (teste == 1) 
+			{
         alarm(3);
         if (conta > 3) break;
         j = 0;
-        while (j < c) {
+        while (j < c) 
+				{
           write(fd, & (buf[j]), 1);
           j++;
         }
@@ -114,18 +118,27 @@ int llopen(char * * argv) {
         teste = 0;
       }
 
-      read(fd, & (buf2[0]), 5);
+      read(fd, & (buf2[0]), 1);
 
-      if (buf2[0] == 0x7E) {
+			i=1;
+      if (buf2[0] == 0x7E) 
+				{
         //printf("Encontrou Flag incial, vou ler\n");
-        while (i <= 4) {
+        while (i <= 4) 
+				{
           newtio.c_cc[VMIN] = 1;
-          (void) read(fd, & (buf2[i]), 1);
+          (void) read(fd, &(buf2[i]), 1);
           i++;
         }
+				if( buf2[3] != buf2[1]^buf2[2]) 
+				{			//testa o bcc
+						teste = 1;
+				}
+				else if 
+				
         //printf("Li em 0: %#08x\nLi em 1: %#08x\nLi em 2: %#08x\nLi em 3: %#08x\nLi em 4: %#08x\n",buf2[0],buf2[1],buf2[2],buf2[3],buf2[4]);
         alarm(0);
-        alm = 0;
+        
         break;
       }
     }
@@ -150,7 +163,12 @@ int llopen(char * * argv) {
           i++;
         }
         printf("Recebi em 0: %#08x\nRecebi em 1: %#08x\nRecebi em 2: %#08x\nRecebi em 3: %#08x\nRecebi em 4: %#08x\n", buf[0], buf[1], buf[2], !buf[3], buf[4]);
-        if (buf[2] == 0x03) {
+
+				if( buf[3] != buf[1]^buf[2]) {			//testa o bcc
+					
+				}
+				
+        else if (buf[2] == 0x03) {
           buf[2] = 0x01;
           j = 0;
           while (j < strlen(buf)) {
