@@ -103,9 +103,9 @@ int llopen(char * * argv) {
     alarm(3);
 
     while (alm == 1) 
-		{
+	{
       if (teste == 1) 
-			{
+		{
         alarm(3);
         if (conta > 3) break;
         j = 0;
@@ -122,7 +122,7 @@ int llopen(char * * argv) {
 
 			i=1;
       if (buf2[0] == 0x7E) 
-				{
+		{
         //printf("Encontrou Flag incial, vou ler\n");
         while (i <= 4) 
 				{
@@ -134,10 +134,13 @@ int llopen(char * * argv) {
 				{			//testa o bcc
 						teste = 1;
 				}
-				else if 
+				else if {
+					alm = 0;
+					alarm(0);
+				}
 				
-        //printf("Li em 0: %#08x\nLi em 1: %#08x\nLi em 2: %#08x\nLi em 3: %#08x\nLi em 4: %#08x\n",buf2[0],buf2[1],buf2[2],buf2[3],buf2[4]);
-        alarm(0);
+				
+        //printf("Li em 0: %#08x\nLi em 1: %#08x\nLi em 2: %#08x\nLi em 3: %#08x\nLi em 4: %#08x\n",buf2[0],buf2[1],buf2[2],buf2[3],buf2[4]);        
         
         break;
       }
@@ -164,20 +167,22 @@ int llopen(char * * argv) {
         }
         printf("Recebi em 0: %#08x\nRecebi em 1: %#08x\nRecebi em 2: %#08x\nRecebi em 3: %#08x\nRecebi em 4: %#08x\n", buf[0], buf[1], buf[2], !buf[3], buf[4]);
 
-				if( buf[3] != buf[1]^buf[2]) {			//testa o bcc
-					
-				}
+		if( buf[3] != buf[1]^buf[2]) {			//testa o bcc
+			i=0;
+			buf[0] = 0;							//se for diferente, reinicia a contagem e a flag
+		}
 				
         else if (buf[2] == 0x03) {
-          buf[2] = 0x01;
-          j = 0;
-          while (j < strlen(buf)) {
-            write(fd, & (buf[j]), 1);
-            j++;
-          }
-          printf("Ligação estabelecida\n");
-          break;
-        } else {
+			buf[2] = 0x01;
+			j = 0;
+			while (j < strlen(buf)) {
+				write(fd, & (buf[j]), 1);
+				j++;
+			}
+			printf("Ligação estabelecida\n");
+			break;
+        } 
+        else {
           printf("Erro na ligação\n");
         }
         break;
