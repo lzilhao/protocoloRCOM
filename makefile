@@ -1,5 +1,5 @@
-app: app.o llopen.o llwrite.o llread.o
-		gcc -Wall -o app app.o llopen.o llwrite.o llread.o
+app: app.o llopen.o llwrite.o llread.o llclose.o
+		gcc -Wall -o app app.o llopen.o llwrite.o llread.o llclose.o
 
 app.o: app.c headers.h
 		gcc -Wall -c app.c
@@ -12,3 +12,6 @@ llwrite.o: llwrite.c headers.h
 
 llread.o: llread.c headers.h
 		gcc -Wall -c llread.c
+
+llclose.o: llclose.c headers.h
+		gcc -Wall -c llclose.c
