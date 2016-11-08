@@ -89,7 +89,7 @@ void xor_func(unsigned char *str,int size,int c,int pack_size)
 	}
 }
 void alm_func(){
-	fprintf(stderr,"\nTimeout");
+	//fprintf(stderr,"\nTimeout\n");
 	flag_timer=2;
 }
 
@@ -138,7 +138,7 @@ int timeout_func(int *count_timer,unsigned char control,int length, int fd,int *
 				else  
 				{
 					flag_timer=1;
-					printf("\nAlgum tipo de erro Ack: %#02x\n",buffer[2]);
+					//printf("\nAlgum tipo de erro Ack: %#02x\n",buffer[2]);
 					retornar=true;
 				}				
 			}		
@@ -190,6 +190,7 @@ int llwrite(int fd,unsigned char *buffer,int length,infoo *sct_info)
 
 		xor_func(full_frame,size,1,length);
 		full_frame=byte_stuffing(full_frame,&size);
+		(sct_info->i_sent)++;
 		//printf("Sai xor");
 
 	}
@@ -231,9 +232,13 @@ int llwrite(int fd,unsigned char *buffer,int length,infoo *sct_info)
 				}			
 		}
 		confirm=timeout_func(&contador_timer,control_state,5,fd,&contador_bcc,&(sct_info->rej_count),&(sct_info->i_received),sct_info->time_out);
+		
+		//printf("\n contador_timer: %d\n",contador_timer);
 		if(confirm==1){	
+			(sct_info->timeout_cnt)=(sct_info->timeout_cnt)+contador_timer;
 			control_state=(control_state ^ 0x40);	
-			retorna=contador_char;		
+			retorna=contador_char;
+			contador_timer=0;		
 			break;	
 		}
 		else if(contador_timer==(sct_info->resend_count)){

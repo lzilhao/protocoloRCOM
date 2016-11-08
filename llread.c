@@ -20,7 +20,6 @@ unsigned char ack=0x00;
 int bcc_cnt=0;
 
 int rand_err(int err_p){
-	srand(time(NULL));
 
 	int i,c;
 	int vec[20];
@@ -139,7 +138,7 @@ int llread(int fd,unsigned char *buffer,unsigned char *full_frame_stuffed){
         l=read(fd,&(full_frame_stuffed[0]),1);
 		if ((full_frame_stuffed[0] == 0x7E) && (l>0)){
 			i=1;
-			while((full_frame_stuffed[i-1]!=0x7E)||(i==1)){   //preenche frame header
+			while((full_frame_stuffed[i-1]!=0x7E)||(i==1)){   
 				l=read(fd,&(full_frame_stuffed[i]),1);
 				if(l>0){			
 					i++;													
@@ -161,7 +160,7 @@ int llread(int fd,unsigned char *buffer,unsigned char *full_frame_stuffed){
 			else{
 				if(full_frame[4]==0x01){   //dados
 					nr_dados=full_frame[6]*256+full_frame[7];
-					if(rand_err(0))
+					if(rand_err(10))
 						full_frame[tamanho-3]=full_frame[tamanho-3]^full_frame[tamanho-3];	
 					bcc2_cod=bcc_check(&full_frame[4],&full_frame[tamanho-2],2,nr_dados+4 );
 					if(bcc2_cod==1){
@@ -170,7 +169,7 @@ int llread(int fd,unsigned char *buffer,unsigned char *full_frame_stuffed){
 					}
 					else{
 						bcc_cnt++;	
-						printf("\n BCC2 MAL\n");
+						//printf("\n BCC2 MAL\n");
 						codigo=6;
 					}			
 				}
@@ -195,12 +194,12 @@ int llread(int fd,unsigned char *buffer,unsigned char *full_frame_stuffed){
 			}
 		}
 		else{	
-			printf("\n Erro no ack\n");
+			//printf("\n Erro no ack\n");
 			codigo=5;
 		}
 	}
 	else{
-		printf("\n ERRO BCC1 \n");
+		//printf("\n ERRO BCC1 \n");
 		codigo=4;
 	}
 
@@ -252,7 +251,7 @@ int llread(int fd,unsigned char *buffer,unsigned char *full_frame_stuffed){
 	}
 	else if(codigo==5){     //erro ack
 		//tcflush(fd, TCIOFLUSH);
-		printf("erro ack\n");
+		//printf("erro ack\n");
 		frame_resposta[0]=0x7E;
 		frame_resposta[1]=0x01;
 		frame_resposta[2]=(ack | RR);
@@ -293,5 +292,6 @@ int llread(int fd,unsigned char *buffer,unsigned char *full_frame_stuffed){
 	//if(retorna==-2)
 //		printf("AHHHH\n");
 //	printf("something - %d\n", buffer[1]);
+
 	return retorna;
 }

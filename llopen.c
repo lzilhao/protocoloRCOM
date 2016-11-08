@@ -44,7 +44,7 @@ int llopen(int porta, char* mode, int my_baudrate)
 
 	sprintf(serial, "/dev/ttyS%d", porta);
 
-	printf("%s\n",serial);	
+	//printf("%s\n",serial);	
 
 	/*
 	Open serial port device for reading and writing and not as controlling tty

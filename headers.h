@@ -6,6 +6,7 @@ typedef struct info {
 	int time_out;
 	int resend_count;
 	int data_size;
+	int timeout_cnt;
 	
 } infoo;
 

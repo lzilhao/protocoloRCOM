@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <time.h>
 #include "headers.h"
 
 //#define TAMANHO_DADOS 1000
@@ -57,6 +58,7 @@ int k=1;
 int tamdadosaux;
 int envios=0;
 int my_baudrate=0;
+srand(time(NULL));
 
 setbuf(stdout, NULL);
 
@@ -96,7 +98,9 @@ setbuf(stdout, NULL);
 
 	info_struct.package_lost=0;
 
-	info_struct.rej_count=0;	
+	info_struct.rej_count=0;
+	
+	info_struct.timeout_cnt=0;	
 	/********************************************/
 
 
@@ -105,7 +109,7 @@ setbuf(stdout, NULL);
 	printf("2- B19200\n");
 	printf("3- B38400\n");
 	printf("4- B115200\n");
-	printf("Introduza o o número da baudrate pretendida: ");
+	printf("Introduza o número da baudrate pretendida: ");
 	scanf("%d",&my_baudrate);
 	printf("\n");
 	if(my_baudrate>4 || my_baudrate<1){
@@ -164,7 +168,7 @@ setbuf(stdout, NULL);
 				package[0]=0x02; // codigo controlo para iniciar
 				package[1]=0x00; // 0 é o tamanho do ficheiro, 1 é o nome
 				package[2]=k; // tamanho do package[3] em bytes
-				printf("\n K: %d",k);
+				//printf("\n K: %d",k);
 				for(i=0;i<k;i++){
 					package[i+3]=tambytesaux;
 					tambytesaux=tambytesaux>>8;
@@ -183,7 +187,7 @@ setbuf(stdout, NULL);
 
 			/*********************Pacotes do ficheiro*********************/
 			else if(write_state==1){
-				printf("\nState 1\n");
+				//printf("\nState 1\n");
 				tamanho=info_struct.data_size;
 				envios=tambytes/tamanho;
 				resto=tambytes-envios*tamanho;
@@ -191,7 +195,8 @@ setbuf(stdout, NULL);
 				i=0;
 				leitura=(unsigned char*) malloc(tamanho);
 				package=(unsigned char*) malloc(tamanho+4);
-				package[1]=0;		
+				package[1]=0;
+				printf("\n envios: %d\n",envios);		
 				while(i<envios){	
 					fread(leitura, 1,tamanho, file) ;
 					
@@ -217,9 +222,22 @@ setbuf(stdout, NULL);
 					}
 				  	else{
 						printf("\nErro na escrita\n");
-						write_state=3;
+						write_state=2;
 						break;
-					}		
+					}
+					j=0;
+					printf("[");
+					while(j<((i*10)/envios)){									
+						printf("#");
+						j++;
+					}
+					while(j<10){
+						printf("_");
+						j++;
+					}
+					printf("]");
+					printf("%d%c",((i*100)/envios),percent);
+					printf("\r");
 				}
 				free(package);
 
@@ -236,7 +254,7 @@ setbuf(stdout, NULL);
 						package[3]=resto;
 						package[2]=0;
 					}
-					printf("\n Resto: %d\n",resto);
+					//printf("\n Resto: %d\n",resto);
 					leitura_resto=(unsigned char*) malloc(resto);	
 						
 					fread(leitura_resto, 1,resto, file);
@@ -273,7 +291,7 @@ setbuf(stdout, NULL);
 				package[0]=0x03; // codigo controlo para iniciar
 				package[1]=0x00; // 0 é o tamanho do ficheiro, 1 é o nome
 				package[2]=k; // tamanho do package[3] em bytes
-				printf("\n K: %d",k);			
+				//printf("\n K: %d",k);			
 				estado_escrita=llwrite(fd,package,3+k,&info_struct);
 
 				if(estado_escrita>=0){
@@ -290,8 +308,9 @@ setbuf(stdout, NULL);
 			/**********************Terminar Ligação***********************/
 			else if(write_state==3){
 					info_struct.package_lost=info_struct.i_received-info_struct.i_sent;
-					printf("\nEnvios total: %d \t Recepções: %d \t REJs: %d \t packets lost: %d\n",info_struct.i_received,info_struct.i_sent,info_struct.rej_count,info_struct.package_lost);  
-					printf("\nNUMERO DE REJ: %d\n",info_struct.rej_count);
+					printf("\nEnvios total: %d \t Recepções: %d \t REJs: %d \t packets lost: %d\n",info_struct.i_received,info_struct.i_sent,info_struct.rej_count,info_struct.package_lost); 
+					printf("\nNUMERO DE TIMEOUT: %d\n",info_struct.timeout_cnt); 
+					//printf("\nNUMERO DE REJ: %d\n",info_struct.rej_count);
 					estado_escrita=llclose(fd,argv[2]);
 					if(estado_escrita>0)
 						printf("\n Fechou com sucesso\n");
@@ -311,7 +330,7 @@ setbuf(stdout, NULL);
 	/*******************************************Receptor***************************************/		
 	else if( (strcmp(argv[2],"R") == 0) )
 	{
-		tamanho=atoi(argv[3]);
+		tamanho=info_struct.data_size;
 		byte_counter=0;
 		leitura=(unsigned char*) malloc(tamanho);
 		package_recep=(unsigned char*) malloc(tamanho+4);
@@ -352,11 +371,11 @@ setbuf(stdout, NULL);
 					fwrite(dados,tamanho_dados,1,file);
 					byte_counter=byte_counter+tamanho_dados;				
 					free(dados);
-					if(recep_int == 0){
+					if(recep_int == 1){
 						read_state=2;
 						flag_read=1;
 					}
-					else if(recep_int > 0){
+					else if(recep_int > 1){
 						i=1;
 						lendo=1;
 						j=0;
@@ -393,10 +412,6 @@ setbuf(stdout, NULL);
 						read_state=2;
 					}
 				}
-				else if(read_return==-1)
-				{
-					return -1;
-				}	
 			}
 			else if(read_state==2){	
 				read_return=llclose(fd,argv[2]);
@@ -409,6 +424,7 @@ setbuf(stdout, NULL);
 		printf("\nTamanho original do ficheiro: %d Bytes\n",tamanho_file);
 		printf("\nTotal de bytes recebidos: %d Bytes\n",byte_counter);
 	}	
+	
 	printf("\n");
 	return 1;
 }
